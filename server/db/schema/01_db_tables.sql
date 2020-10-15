@@ -1,0 +1,27 @@
+DROP TABLE IF EXISTS books
+CASCADE;
+DROP TABLE IF EXISTS reservations
+CASCADE;
+
+
+
+CREATE TABLE books
+(
+  id SERIAL PRIMARY KEY NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  author VARCHAR(255) NOT NULL,
+  quantity INTEGER NOT NULL
+  
+);
+
+CREATE TABLE reservations
+(
+  id SERIAL PRIMARY KEY NOT NULL,
+  start_date VARCHAR(255) NOT NULL,
+  end_date VARCHAR(255) NOT NULL,
+  due_date VARCHAR(255),
+  book_id INTEGER REFERENCES books(id)
+);
+
+
+-- DATE NOT NULL
