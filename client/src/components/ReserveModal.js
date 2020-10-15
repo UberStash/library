@@ -16,13 +16,13 @@ function ReserveModal(props) {
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
       open={open}
-      trigger={<Button inverted={true}>Reserve</Button>}
+      trigger={<Button color='instagram'>Reserve</Button>}
     >
       <Modal.Header>RESERVE</Modal.Header>
       <Modal.Content>
         <Modal.Description>
   <Header>Fill Out To Reserve {props.book.title}</Header>
-            <ReserveForm handleClose={handClose} book={props.book.id}/>
+            <ReserveForm handleClose={handClose} book={props.book}/>
         </Modal.Description>
       </Modal.Content>
     </Modal>

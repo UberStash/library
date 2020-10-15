@@ -27,6 +27,25 @@ const addReservation = ({ start_date, end_date, bookId }) => {
     .catch((err) => err);
 };
 
+const removeFromQuantity = (quantity, id) => {
+  console.log('function',quantity, id)
+  const query = {
+    text: `UPDATE books
+    SET quantity = ${quantity},
+    WHERE id = ${id},
+    RETURNING *;       
+    VALUES ($1, $2)`,
+    values: [quantity, id],
+  };
+
+  return db
+    .query(query)
+    .then((result) => {result.rows})
+    .catch((err) => err);
+};
+
+
+
 /* GET home page. */
 router.get("/", function (req, res, next) {
   res.render("index", { title: "Express" });
@@ -45,11 +64,23 @@ router.get("/api/books", (req, res) => {
 // Create a reservation
 router.post("/reserve", (req, res) => {
   console.log(req.body.state.start_date)
+  const quantity = req.body.state.quantity - 1
   addReservation(req.body.state)
+  removeFromQuantity(quantity, req.body.state.bookId)
     .then((data) => {
       return res.json(data);
     })
     .catch((err) => res.json({ err }));
 });
+
+router.put("/books", (req, res) => {
+  const quantity = req.body.state.quantity - 1
+  removeFromQuantity(quantity, req.body.state.bookId)
+    .then((data) => {
+      return res.json(data);
+    })
+    .catch((err) => res.json({ err }));
+});
+
 
 module.exports = router;
