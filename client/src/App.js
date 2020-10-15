@@ -1,40 +1,34 @@
-import React, {useEffect} from 'react';
-import logo from './logo.svg';
-import './App.css';
-import axios from 'axios'
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import axios from "axios";
 
 function App() {
+  const [state, setState] = useState({
+    list: [],
+  });
+
   useEffect(() => {
+    axios.get(`http://localhost:3001/api/books`).then((all) => {
+      console.log(all.data);
+      setState((prev) => ({
+        ...prev,
+        list: all.data,
+      }));
+    });
+  }, []);
 
-    
-      axios
-        .get(`http://localhost:3001/api/books`)
-        .then((all) => {
-          console.log(all.data);
-        })
-    
+  const reserve = function(book) {
+    console.log('You clkicked', book)
+  }
 
-
-    
-
-      }, [])
+const bookList = state.list.map((book) => <div>{book.title}, {book.author}, {book.quantity} <button onClick={() => reserve(book)}>Reserve Me!</button></div>);
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        
+        <h1>Welcome To Your Digital Library</h1>
+        <> {bookList}</>
       </header>
     </div>
   );
