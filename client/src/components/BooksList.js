@@ -34,7 +34,7 @@ function BooksList() {
       }));
     });
 
-    axios.get(`http://localhost:3001/api/reservations`).then((all) => {
+    axios.get(`http://localhost:3001/api/reserve`).then((all) => {
       console.log(all.data);
       setState((prev) => ({
         ...prev,
@@ -119,7 +119,7 @@ function BooksList() {
   if (results.length === 0) {
     bookList = state.list.map((book) => (
       <Table.Row>
-        <Table.Cell collapsing>
+        <Table.Cell>
         {book.quantity > 0 ? <ReserveModal book={book} setState={setState}/> : <Button color='red'>Reserve</Button>}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
@@ -133,7 +133,7 @@ function BooksList() {
   } else {
     bookList = results.map((book) => (
       <Table.Row>
-        <Table.Cell collapsing>
+        <Table.Cell>
         {book.quantity > 0 ? <ReserveModal book={book} setState={setState}/> : <Button color='red'>Reserve</Button>}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
@@ -148,10 +148,14 @@ function BooksList() {
 
   const reservationList = state.reservations.map((reservation) => (
     <Table.Row>
+      <Table.Cell></Table.Cell>
       <Table.Cell>{reservation.title}</Table.Cell>
       <Table.Cell>{reservation.author}</Table.Cell>
       <Table.Cell>{reservation.start_date}</Table.Cell>
       <Table.Cell>{reservation.end_date}</Table.Cell>
+      <Table.Cell style={{backgroundColor: '#1b1c1d'}}><Button inverted color='green'>Checkout Book</Button></Table.Cell>
+      <Table.Cell style={{backgroundColor: '#1b1c1d'}}><Button inverted color='yellow'>Return Book</Button></Table.Cell>
+      <Table.Cell style={{backgroundColor: '#1b1c1d'}}><Button inverted color='red'>Cancel</Button></Table.Cell>
     </Table.Row>
   ));
 
@@ -159,7 +163,8 @@ function BooksList() {
     <Grid centered>
       <Grid.Row verticalAlign="middle" centered style={{ position: "top" }}>
         
-      <Grid.Column width={5}>
+      <Grid.Column width={5} style={{ textAlign: "center" }}>
+      <Header inverted>Our Library</Header>
           <Segment inverted>
             <Table compact celled definition size='large'>
               <Table.Header>
@@ -216,15 +221,20 @@ function BooksList() {
           />
         </Grid.Column>
         {/* <Grid.Column width={2}></Grid.Column> */}
-        <Grid.Column width={5}>
-          <Segment inverted>
-            <Table compact celled definition size='large'>
+        <Grid.Column width={5} style={{ textAlign: "center" }}>
+            <Header inverted>Your Reserved Books</Header>
+          <Segment >
+            <Table compact celled definition size='large' >
               <Table.Header>
                 <Table.Row>
+                  <Table.Header></Table.Header>
                   <Table.HeaderCell>Title</Table.HeaderCell>
                   <Table.HeaderCell>Author</Table.HeaderCell>
                   <Table.HeaderCell>Pick Up</Table.HeaderCell>
                   <Table.HeaderCell>Return By</Table.HeaderCell>
+                  {/* <Table.HeaderCell>Checkout</Table.HeaderCell>
+                  <Table.HeaderCell>Return</Table.HeaderCell>
+                  <Table.HeaderCell>Cancel</Table.HeaderCell> */}
                 </Table.Row>
               </Table.Header>
 

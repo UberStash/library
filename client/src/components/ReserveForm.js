@@ -34,11 +34,21 @@ const ReserveForm = (props) => {
         list: res.data,
       }));
     })
-    .then(() => props.handleClose())
+    .then(() => updateReservations())
     .catch((err) => console.log(err));
   }
 
-  
+  const updateReservations = () => {
+    return axios
+    .get("http://localhost:3001/api/reserve")
+    .then((res) => {
+      props.setState((prev) => ({
+        ...prev,
+        reservations: res.data,
+      }));
+    })
+    .then(() => props.handleClose())
+  }
 
   return (
     <Form onSubmit={handleSubmit}>

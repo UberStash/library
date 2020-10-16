@@ -4,7 +4,8 @@ const db = require("../db");
 
 const getBooks = () => {
   const query = {
-    text: `SELECT * FROM books`,
+    text: `SELECT * FROM books
+    ORDER BY title`,
   };
 
   return db
@@ -16,7 +17,8 @@ const getBooks = () => {
 const getReservations = () => {
   const query = {
     text: `SELECT * FROM reservations
-    JOIN books ON books.id = book_id `,
+    JOIN books ON books.id = book_id 
+    ORDER BY start_date`,
   };
 
   return db
@@ -69,7 +71,7 @@ router.get("/api/books", (req, res) => {
     .catch((err) => res.json({ err }));
 });
 
-router.get("/api/reservations", (req, res) => {
+router.get("/api/reserve", (req, res) => {
   getReservations(req.params.id)
     .then((data) => {
       console.log("appts: ", data.data);
