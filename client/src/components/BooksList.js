@@ -21,6 +21,7 @@ function BooksList() {
 
   const [state, setState] = useState({
     list: [],
+    reservations: [],
     searchType: "author",
   });
 
@@ -32,6 +33,16 @@ function BooksList() {
         list: all.data,
       }));
     });
+
+    axios.get(`http://localhost:3001/api/reservations`).then((all) => {
+      console.log(all.data);
+      setState((prev) => ({
+        ...prev,
+        reservations: all.data,
+      }));
+    });
+
+
   }, []);
 
   function exampleReducer(searchState, action) {
@@ -109,7 +120,7 @@ function BooksList() {
     bookList = state.list.map((book) => (
       <Table.Row>
         <Table.Cell collapsing>
-        {book.quantity > 0 ? <ReserveModal book={book} /> : <Button color='red'>Reserve</Button>}
+        {book.quantity > 0 ? <ReserveModal book={book} setState={setState}/> : <Button color='red'>Reserve</Button>}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
         <Table.Cell>{book.author}</Table.Cell>
@@ -123,7 +134,7 @@ function BooksList() {
     bookList = results.map((book) => (
       <Table.Row>
         <Table.Cell collapsing>
-          <ReserveModal book={book} />
+        {book.quantity > 0 ? <ReserveModal book={book} setState={setState}/> : <Button color='red'>Reserve</Button>}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
         <Table.Cell>{book.author}</Table.Cell>
@@ -135,10 +146,38 @@ function BooksList() {
     ));
   }
 
+  const reservationList = state.reservations.map((reservation) => (
+    <Table.Row>
+      <Table.Cell>{reservation.title}</Table.Cell>
+      <Table.Cell>{reservation.author}</Table.Cell>
+      <Table.Cell>{reservation.start_date}</Table.Cell>
+      <Table.Cell>{reservation.end_date}</Table.Cell>
+    </Table.Row>
+  ));
+
   return (
     <Grid centered>
       <Grid.Row verticalAlign="middle" centered style={{ position: "top" }}>
-        <Grid.Column width={6} style={{ textAlign: "center" }}>
+        
+      <Grid.Column width={5}>
+          <Segment inverted>
+            <Table compact celled definition size='large'>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell></Table.HeaderCell>
+                  <Table.HeaderCell>Title</Table.HeaderCell>
+                  <Table.HeaderCell>Author</Table.HeaderCell>
+                  <Table.HeaderCell>Quantity</Table.HeaderCell>
+                  <Table.HeaderCell>Status</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+
+              <Table.Body>{bookList}</Table.Body>
+            </Table>
+          </Segment>
+        </Grid.Column>
+        
+        <Grid.Column width={4} style={{ textAlign: "center" }}>
           <Header inverted>Welcome to your digital library</Header>
           <Button.Group>
             <Button
@@ -176,21 +215,20 @@ function BooksList() {
             placeholder={`Search by ${state.searchType}`}
           />
         </Grid.Column>
-        <Grid.Column width={2}></Grid.Column>
-        <Grid.Column width={6}>
+        {/* <Grid.Column width={2}></Grid.Column> */}
+        <Grid.Column width={5}>
           <Segment inverted>
             <Table compact celled definition size='large'>
               <Table.Header>
                 <Table.Row>
-                  <Table.HeaderCell></Table.HeaderCell>
                   <Table.HeaderCell>Title</Table.HeaderCell>
                   <Table.HeaderCell>Author</Table.HeaderCell>
-                  <Table.HeaderCell>Quantity</Table.HeaderCell>
-                  <Table.HeaderCell>Status</Table.HeaderCell>
+                  <Table.HeaderCell>Pick Up</Table.HeaderCell>
+                  <Table.HeaderCell>Return By</Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
 
-              <Table.Body>{bookList}</Table.Body>
+              <Table.Body>{reservationList}</Table.Body>
             </Table>
           </Segment>
         </Grid.Column>

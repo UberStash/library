@@ -28,10 +28,17 @@ const ReserveForm = (props) => {
   const updateQuantity = () => {
     return axios
     .put("http://localhost:3001/books", { state })
-    .then((res) => console.log('quantity change response', res.data))
+    .then((res) => {
+      props.setState((prev) => ({
+        ...prev,
+        list: res.data,
+      }));
+    })
     .then(() => props.handleClose())
     .catch((err) => console.log(err));
   }
+
+  
 
   return (
     <Form onSubmit={handleSubmit}>

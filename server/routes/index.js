@@ -13,6 +13,18 @@ const getBooks = () => {
     .catch((err) => err);
 };
 
+const getReservations = () => {
+  const query = {
+    text: `SELECT * FROM reservations
+    JOIN books ON books.id = book_id `,
+  };
+
+  return db
+    .query(query)
+    .then((result) => result.rows)
+    .catch((err) => err);
+};
+
 const addReservation = ({ start_date, end_date, bookId }) => {
   console.log(end_date)
   const query = {
@@ -30,7 +42,7 @@ const addReservation = ({ start_date, end_date, bookId }) => {
 const removeFromQuantity = (quantity, id) => {
   console.log('function',quantity, id)
   const query = {
-    text: `UPDATE books SET quantity = ${quantity} WHERE id = ${id} RETURNING books;`       
+    text: `UPDATE books SET quantity = ${quantity} WHERE id = ${id};`       
     
   };
 
@@ -57,6 +69,15 @@ router.get("/api/books", (req, res) => {
     .catch((err) => res.json({ err }));
 });
 
+router.get("/api/reservations", (req, res) => {
+  getReservations(req.params.id)
+    .then((data) => {
+      console.log("appts: ", data.data);
+      return res.json(data);
+    })
+    .catch((err) => res.json({ err }));
+});
+
 // Create a reservation
 router.post("/reserve", (req, res) => {
   console.log(req.body.state.start_date)
@@ -72,9 +93,13 @@ router.post("/reserve", (req, res) => {
 router.put("/books", (req, res) => {
   const quantity = req.body.state.quantity - 1
   removeFromQuantity(quantity, req.body.state.bookId)
-    .then((data) => {
-      return res.json(data);
-    })
+    .then(getBooks().then(
+
+      (data) => {
+        return res.json(data);
+      }
+    )
+      )
     .catch((err) => res.json({ err }));
 });
 

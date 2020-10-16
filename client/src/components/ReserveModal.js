@@ -22,7 +22,7 @@ function ReserveModal(props) {
       <Modal.Content>
         <Modal.Description>
   <Header>Fill Out To Reserve {props.book.title}</Header>
-            <ReserveForm handleClose={handClose} book={props.book}/>
+            <ReserveForm handleClose={handClose} book={props.book} setState={props.setState}/>
         </Modal.Description>
       </Modal.Content>
     </Modal>
