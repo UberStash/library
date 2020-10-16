@@ -30,12 +30,8 @@ const addReservation = ({ start_date, end_date, bookId }) => {
 const removeFromQuantity = (quantity, id) => {
   console.log('function',quantity, id)
   const query = {
-    text: `UPDATE books
-    SET quantity = ${quantity},
-    WHERE id = ${id},
-    RETURNING *;       
-    VALUES ($1, $2)`,
-    values: [quantity, id],
+    text: `UPDATE books SET quantity = ${quantity} WHERE id = ${id} RETURNING books;`       
+    
   };
 
   return db
