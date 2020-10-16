@@ -16,7 +16,7 @@ function ReserveModal(props) {
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
       open={open}
-      trigger={<Button color='instagram'>Reserve</Button>}
+      trigger={<Button color='green'>Reserve</Button>}
     >
       <Modal.Header>RESERVE</Modal.Header>
       <Modal.Content>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Form, Button, Select } from "semantic-ui-react";
+import { Form, Button } from "semantic-ui-react";
 
 const ReserveForm = (props) => {
   const [state, setState] = useState({
@@ -28,7 +28,7 @@ const ReserveForm = (props) => {
   const updateQuantity = () => {
     return axios
     .put("http://localhost:3001/books", { state })
-    .then((res) => console.log(res.data))
+    .then((res) => console.log('quantity change response', res.data))
     .then(() => props.handleClose())
     .catch((err) => console.log(err));
   }

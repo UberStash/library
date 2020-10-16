@@ -7,8 +7,6 @@ import {
   Grid,
   Header,
   Search,
-  Form,
-  Checkbox,
   Table,
   Button,
 } from "semantic-ui-react";
@@ -78,7 +76,6 @@ function BooksList() {
           type: "FINISH_SEARCH",
           results: _.filter(state.list, isMatch),
         });
-        console.log(results);
       }, 300);
     },
     [state]
@@ -112,7 +109,7 @@ function BooksList() {
     bookList = state.list.map((book) => (
       <Table.Row>
         <Table.Cell collapsing>
-          <ReserveModal book={book} />
+        {book.quantity > 0 ? <ReserveModal book={book} /> : <Button color='red'>Reserve</Button>}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
         <Table.Cell>{book.author}</Table.Cell>
@@ -182,7 +179,7 @@ function BooksList() {
         <Grid.Column width={2}></Grid.Column>
         <Grid.Column width={6}>
           <Segment inverted>
-            <Table compact celled definition>
+            <Table compact celled definition size='large'>
               <Table.Header>
                 <Table.Row>
                   <Table.HeaderCell></Table.HeaderCell>
