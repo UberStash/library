@@ -41,6 +41,21 @@ const addReservation = ({ start_date, end_date, bookId }) => {
     .catch((err) => err);
 };
 
+const cancelReservation = ( id ) => {
+  console.log('in', id)
+  const query = {
+    text: `DELETE FROM reservations WHERE reserve_id = ${id};      
+    `
+    
+  };
+
+  return db
+    .query(query)
+    .then((result) => result.rows)
+    .catch((err) => console.log(err));
+};
+
+
 const removeFromQuantity = (quantity, id) => {
   console.log('function',quantity, id)
   const query = {
@@ -85,7 +100,16 @@ router.post("/reserve", (req, res) => {
   console.log(req.body.state.start_date)
   const quantity = req.body.state.quantity - 1
   addReservation(req.body.state)
-  removeFromQuantity(quantity, req.body.state.bookId)
+    .then((data) => {
+      return res.json(data);
+    })
+    .catch((err) => res.json({ err }));
+});
+
+router.delete("/reserve/cancel/:id", (req, res) => {
+
+  cancelReservation(req.params.id)
+  getReservations()
     .then((data) => {
       return res.json(data);
     })
@@ -93,8 +117,8 @@ router.post("/reserve", (req, res) => {
 });
 
 router.put("/books", (req, res) => {
-  const quantity = req.body.state.quantity - 1
-  removeFromQuantity(quantity, req.body.state.bookId)
+console.log(req.body)
+  removeFromQuantity(req.body.quantity, req.body.bookId)
     .then(getBooks().then(
 
       (data) => {

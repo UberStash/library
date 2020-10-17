@@ -16,10 +16,9 @@ CREATE TABLE books
 
 CREATE TABLE reservations
 (
-  id SERIAL PRIMARY KEY NOT NULL,
+  reserve_id SERIAL PRIMARY KEY NOT NULL,
   start_date VARCHAR NOT NULL,
   end_date VARCHAR(255) NOT NULL,
-  due_date VARCHAR(255),
   book_id INTEGER REFERENCES books(id)
 );
 

@@ -27,8 +27,10 @@ const ReserveForm = (props) => {
       });
   };
   const updateQuantity = () => {
+    const bookId = state.bookId
+    const quantity = state.quantity - 1
     return axios
-    .put("http://localhost:3001/books", { state })
+    .put("http://localhost:3001/books", { bookId, quantity })
     .then((res) => {
       props.setState((prev) => ({
         ...prev,
@@ -50,7 +52,7 @@ const ReserveForm = (props) => {
     })
     .then(() => props.handleClose())
   }
-console.log(moment().add(10, 'days').calendar().replace('/', '-'))
+
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group>

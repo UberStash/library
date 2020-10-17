@@ -9,8 +9,10 @@ import {
   Search,
   Table,
   Button,
+  Icon
 } from "semantic-ui-react";
 import _ from "lodash";
+
 
 function BooksList() {
   const initialState = {
@@ -43,17 +45,33 @@ function BooksList() {
     });
   }, []);
 
-  const cancelReservation = (id) => {
-    console.log(id)
-    axios.delete(`http://localhost:3001/reserve/cancel/${id}`).then((all) => {
-      console.log(all.data);
-      setState((prev) => ({
-        ...prev,
-        reservations: all.data,
-      }));
-    });
-  }
-  function exampleReducer(searchState, action) {
+  const cancelReservation = (id, book) => {
+    console.log(book);
+    const bookId = book.book_id;
+    const quantity = book.quantity + 1;
+    axios
+      .delete(`http://localhost:3001/reserve/cancel/${id}`)
+      .then((all) => {
+        console.log(all.data);
+        setState((prev) => ({
+          ...prev,
+          reservations: all.data,
+        }));
+      })
+      .then(() => {
+        return axios
+          .put("http://localhost:3001/books", { bookId, quantity })
+          .then((all) => {
+            console.log(all.data);
+            setState((prev) => ({
+              ...prev,
+              list: all.data,
+            }));
+            dispatch({ type: "CLEAN_QUERY" });
+          });
+      });
+  };
+  function reducer(searchState, action) {
     switch (action.type) {
       case "CLEAN_QUERY":
         return initialState;
@@ -70,7 +88,7 @@ function BooksList() {
   }
 
   const [searchState, dispatch] = React.useReducer(
-    exampleReducer,
+    reducer,
     initialState
   );
   const { loading, results, value } = searchState;
@@ -120,10 +138,7 @@ function BooksList() {
   };
 
   let bookList = [];
-  {
-    /* <Segment size='huge'>,   <ReserveModal book={book} /></Segment> */
-  }
-  console.log(results);
+
   if (results.length === 0) {
     bookList = state.list.map((book) => (
       <Table.Row>
@@ -131,7 +146,7 @@ function BooksList() {
           {book.quantity > 0 ? (
             <ReserveModal book={book} setState={setState} />
           ) : (
-            <Button color="red">Reserve</Button>
+            <Button disabled color='grey'>Reserve</Button>
           )}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
@@ -164,59 +179,77 @@ function BooksList() {
 
   const reservationList = state.reservations.map((reservation) => (
     <Table.Row>
-      <Table.Cell>{reservation.title}</Table.Cell>
+      <Table.Cell>
+        {reservation.title}
+        {reservation.book_id}
+        {}
+      </Table.Cell>
       <Table.Cell>{reservation.author}</Table.Cell>
-      <Table.Cell>{reservation.start_date}</Table.Cell>
-      <Table.Cell>{reservation.end_date}</Table.Cell>
       <Table.Cell>
-        Pick up {moment(reservation.start_date, "YYYY-MM-DD").fromNow()}
-        <Button size="tiny" inverted color="green">
-          Checkout Book
-        </Button>
+        Pick up {moment(reservation.start_date, "YYYY-MM-DD").fromNow()} <br/>{" "}
+        {reservation.start_date}
       </Table.Cell>
       <Table.Cell>
-        Return {moment(reservation.end_date, "YYYY-MM-DD").fromNow()}
-        <Button size="tiny" inverted color="yellow">
-          Return Book
-        </Button>
+        Return {moment(reservation.end_date, "YYYY-MM-DD").fromNow()} <br/>{" "}
+        {reservation.end_date}
       </Table.Cell>
+      
       <Table.Cell>
-        <Button size="small" inverted color="red" onClick={() => cancelReservation(reservation.id)}>
+        <Button
+          size="small"
+          compact
+          color="yellow"
+          onClick={() => cancelReservation(reservation.reserve_id, reservation)}
+        >
+          Edit
+        </Button>
+        <Button
+          size="small"
+          compact
+          color="red"
+          onClick={() => cancelReservation(reservation.reserve_id, reservation)}
+        >
           Cancel
         </Button>
       </Table.Cell>
     </Table.Row>
+    
   ));
-  console.log(value);
+
   return (
-    <Grid centered verticalAlign='top'>
+    <Grid centered verticalAlign="top">
       <Grid.Row verticalAlign="top" centered style={{ position: "top" }}>
         <Grid.Column width={5} style={{ textAlign: "center" }}>
-          <Header inverted>Our Library</Header>
+          <Segment padded='very' inverted>
+          <Header size='huge' inverted style={{fontSize: "4rem"}}>Our Library</Header>
           <Button.Group>
             <Button
-              inverted
+            inverted
               color="instagram"
               size="huge"
               style={{ margin: "1rem" }}
               onClick={() => searchType("author")}
             >
+              <Icon name='user' />
               Author
             </Button>
             <Button
+            toggle
               inverted
               color="instagram"
               size="huge"
               style={{ margin: "1rem" }}
               onClick={() => searchType("title")}
             >
+              <Icon name='book' />
               Title
             </Button>
           </Button.Group>
 
           <Search
+          
             fluid
-            size="mini"
+            size='huge'
             loading={loading}
             onResultSelect={(e, data) =>
               dispatch({
@@ -230,7 +263,7 @@ function BooksList() {
             value={value}
             placeholder={`Search by ${state.searchType}`}
           />
-          <Segment>
+          
             <Table compact celled definition size="large">
               <Table.Header>
                 <Table.Row>
@@ -249,18 +282,17 @@ function BooksList() {
 
         {/* <Grid.Column width={2}></Grid.Column> */}
         <Grid.Column width={9} style={{ textAlign: "center" }}>
-          <Header inverted>Your Reserved Books</Header>
-          <Segment>
-            <Table compact celled size="large" fixed>
+          <Segment padded='very' inverted>
+          <Header size='huge' inverted style={{fontSize: "4rem"}}>Your Reserved Books</Header>
+            <Table  size="large" celled fixed textAlign='center'>
               <Table.Header>
                 <Table.Row>
                   <Table.HeaderCell>Title</Table.HeaderCell>
                   <Table.HeaderCell>Author</Table.HeaderCell>
                   <Table.HeaderCell>Pick Up</Table.HeaderCell>
                   <Table.HeaderCell>Return By</Table.HeaderCell>
-                  <Table.HeaderCell>Checkout</Table.HeaderCell>
-                  <Table.HeaderCell>Return</Table.HeaderCell>
                   <Table.HeaderCell>Cancel</Table.HeaderCell>
+                  
                 </Table.Row>
               </Table.Header>
 
