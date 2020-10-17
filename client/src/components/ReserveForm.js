@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Form, Button } from "semantic-ui-react";
+import moment from 'moment'
 
 const ReserveForm = (props) => {
   const [state, setState] = useState({
@@ -49,7 +50,7 @@ const ReserveForm = (props) => {
     })
     .then(() => props.handleClose())
   }
-
+console.log(moment().add(10, 'days').calendar().replace('/', '-'))
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group>
@@ -58,6 +59,7 @@ const ReserveForm = (props) => {
             Day You Want To Reserve The Book For
           </label>
           <input
+            min={moment().format('YYYY-MM-DD')}
             type="date"
             name="start_date"
             value={state.start_date}
@@ -68,6 +70,7 @@ const ReserveForm = (props) => {
         <Form.Field required>
           <label htmlFor="end_date">Day You Want To Return The Book By</label>
           <input
+            min={state.start_date}
             type="date"
             name="end_date"
             value={state.end_date}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReserveModal from "./ReserveModal";
-
+import moment from "moment";
 import {
   Segment,
   Grid,
@@ -41,10 +41,18 @@ function BooksList() {
         reservations: all.data,
       }));
     });
-
-
   }, []);
 
+  const cancelReservation = (id) => {
+    console.log(id)
+    axios.delete(`http://localhost:3001/reserve/cancel/${id}`).then((all) => {
+      console.log(all.data);
+      setState((prev) => ({
+        ...prev,
+        reservations: all.data,
+      }));
+    });
+  }
   function exampleReducer(searchState, action) {
     switch (action.type) {
       case "CLEAN_QUERY":
@@ -115,12 +123,16 @@ function BooksList() {
   {
     /* <Segment size='huge'>,   <ReserveModal book={book} /></Segment> */
   }
-
+  console.log(results);
   if (results.length === 0) {
     bookList = state.list.map((book) => (
       <Table.Row>
         <Table.Cell>
-        {book.quantity > 0 ? <ReserveModal book={book} setState={setState}/> : <Button color='red'>Reserve</Button>}
+          {book.quantity > 0 ? (
+            <ReserveModal book={book} setState={setState} />
+          ) : (
+            <Button color="red">Reserve</Button>
+          )}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
         <Table.Cell>{book.author}</Table.Cell>
@@ -134,7 +146,11 @@ function BooksList() {
     bookList = results.map((book) => (
       <Table.Row>
         <Table.Cell>
-        {book.quantity > 0 ? <ReserveModal book={book} setState={setState}/> : <Button color='red'>Reserve</Button>}
+          {book.quantity > 0 ? (
+            <ReserveModal book={book} setState={setState} />
+          ) : (
+            <Button color="red">Reserve</Button>
+          )}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
         <Table.Cell>{book.author}</Table.Cell>
@@ -148,42 +164,35 @@ function BooksList() {
 
   const reservationList = state.reservations.map((reservation) => (
     <Table.Row>
-      <Table.Cell></Table.Cell>
       <Table.Cell>{reservation.title}</Table.Cell>
       <Table.Cell>{reservation.author}</Table.Cell>
       <Table.Cell>{reservation.start_date}</Table.Cell>
       <Table.Cell>{reservation.end_date}</Table.Cell>
-      <Table.Cell style={{backgroundColor: '#1b1c1d'}}><Button inverted color='green'>Checkout Book</Button></Table.Cell>
-      <Table.Cell style={{backgroundColor: '#1b1c1d'}}><Button inverted color='yellow'>Return Book</Button></Table.Cell>
-      <Table.Cell style={{backgroundColor: '#1b1c1d'}}><Button inverted color='red'>Cancel</Button></Table.Cell>
+      <Table.Cell>
+        Pick up {moment(reservation.start_date, "YYYY-MM-DD").fromNow()}
+        <Button size="tiny" inverted color="green">
+          Checkout Book
+        </Button>
+      </Table.Cell>
+      <Table.Cell>
+        Return {moment(reservation.end_date, "YYYY-MM-DD").fromNow()}
+        <Button size="tiny" inverted color="yellow">
+          Return Book
+        </Button>
+      </Table.Cell>
+      <Table.Cell>
+        <Button size="small" inverted color="red" onClick={() => cancelReservation(reservation.id)}>
+          Cancel
+        </Button>
+      </Table.Cell>
     </Table.Row>
   ));
-
+  console.log(value);
   return (
-    <Grid centered>
-      <Grid.Row verticalAlign="middle" centered style={{ position: "top" }}>
-        
-      <Grid.Column width={5} style={{ textAlign: "center" }}>
-      <Header inverted>Our Library</Header>
-          <Segment inverted>
-            <Table compact celled definition size='large'>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell></Table.HeaderCell>
-                  <Table.HeaderCell>Title</Table.HeaderCell>
-                  <Table.HeaderCell>Author</Table.HeaderCell>
-                  <Table.HeaderCell>Quantity</Table.HeaderCell>
-                  <Table.HeaderCell>Status</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-
-              <Table.Body>{bookList}</Table.Body>
-            </Table>
-          </Segment>
-        </Grid.Column>
-        
-        <Grid.Column width={4} style={{ textAlign: "center" }}>
-          <Header inverted>Welcome to your digital library</Header>
+    <Grid centered verticalAlign='top'>
+      <Grid.Row verticalAlign="top" centered style={{ position: "top" }}>
+        <Grid.Column width={5} style={{ textAlign: "center" }}>
+          <Header inverted>Our Library</Header>
           <Button.Group>
             <Button
               inverted
@@ -206,6 +215,7 @@ function BooksList() {
           </Button.Group>
 
           <Search
+            fluid
             size="mini"
             loading={loading}
             onResultSelect={(e, data) =>
@@ -215,26 +225,42 @@ function BooksList() {
               })
             }
             onSearchChange={handleSearchChange}
+            open={false}
             results={results}
             value={value}
             placeholder={`Search by ${state.searchType}`}
           />
-        </Grid.Column>
-        {/* <Grid.Column width={2}></Grid.Column> */}
-        <Grid.Column width={5} style={{ textAlign: "center" }}>
-            <Header inverted>Your Reserved Books</Header>
-          <Segment >
-            <Table compact celled definition size='large' >
+          <Segment>
+            <Table compact celled definition size="large">
               <Table.Header>
                 <Table.Row>
-                  <Table.Header></Table.Header>
+                  <Table.HeaderCell></Table.HeaderCell>
+                  <Table.HeaderCell>Title</Table.HeaderCell>
+                  <Table.HeaderCell>Author</Table.HeaderCell>
+                  <Table.HeaderCell>Quantity</Table.HeaderCell>
+                  <Table.HeaderCell>Status</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+
+              <Table.Body>{bookList}</Table.Body>
+            </Table>
+          </Segment>
+        </Grid.Column>
+
+        {/* <Grid.Column width={2}></Grid.Column> */}
+        <Grid.Column width={9} style={{ textAlign: "center" }}>
+          <Header inverted>Your Reserved Books</Header>
+          <Segment>
+            <Table compact celled size="large" fixed>
+              <Table.Header>
+                <Table.Row>
                   <Table.HeaderCell>Title</Table.HeaderCell>
                   <Table.HeaderCell>Author</Table.HeaderCell>
                   <Table.HeaderCell>Pick Up</Table.HeaderCell>
                   <Table.HeaderCell>Return By</Table.HeaderCell>
-                  {/* <Table.HeaderCell>Checkout</Table.HeaderCell>
+                  <Table.HeaderCell>Checkout</Table.HeaderCell>
                   <Table.HeaderCell>Return</Table.HeaderCell>
-                  <Table.HeaderCell>Cancel</Table.HeaderCell> */}
+                  <Table.HeaderCell>Cancel</Table.HeaderCell>
                 </Table.Row>
               </Table.Header>
 
