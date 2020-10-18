@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReserveModal from "./ReserveModal";
+import EditModal from './EditModal'
 import moment from "moment";
+
 import {
   Segment,
   Grid,
@@ -9,10 +11,9 @@ import {
   Search,
   Table,
   Button,
-  Icon
+  Icon,
 } from "semantic-ui-react";
 import _ from "lodash";
-
 
 function BooksList() {
   const initialState = {
@@ -71,6 +72,9 @@ function BooksList() {
           });
       });
   };
+
+  
+
   function reducer(searchState, action) {
     switch (action.type) {
       case "CLEAN_QUERY":
@@ -87,10 +91,7 @@ function BooksList() {
     }
   }
 
-  const [searchState, dispatch] = React.useReducer(
-    reducer,
-    initialState
-  );
+  const [searchState, dispatch] = React.useReducer(reducer, initialState);
   const { loading, results, value } = searchState;
 
   const timeoutRef = React.useRef();
@@ -146,7 +147,9 @@ function BooksList() {
           {book.quantity > 0 ? (
             <ReserveModal book={book} setState={setState} />
           ) : (
-            <Button disabled color='grey'>Reserve</Button>
+            <Button disabled color="grey">
+              Reserve
+            </Button>
           )}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
@@ -164,7 +167,9 @@ function BooksList() {
           {book.quantity > 0 ? (
             <ReserveModal book={book} setState={setState} />
           ) : (
-            <Button color="red">Reserve</Button>
+            <Button disabled color="grey">
+            Reserve
+          </Button>
           )}
         </Table.Cell>
         <Table.Cell>{book.title}</Table.Cell>
@@ -186,25 +191,21 @@ function BooksList() {
       </Table.Cell>
       <Table.Cell>{reservation.author}</Table.Cell>
       <Table.Cell>
-        Pick up {moment(reservation.start_date, "YYYY-MM-DD").fromNow()} <br/>{" "}
+        Pick up {moment(reservation.start_date, "YYYY-MM-DD").fromNow()} <br />{" "}
         {reservation.start_date}
       </Table.Cell>
       <Table.Cell>
-        Return {moment(reservation.end_date, "YYYY-MM-DD").fromNow()} <br/>{" "}
+        Return {moment(reservation.end_date, "YYYY-MM-DD").fromNow()} <br />{" "}
         {reservation.end_date}
       </Table.Cell>
-      
+
       <Table.Cell>
+        
+        <EditModal reservation={reservation} setState={setState}/>
+        </Table.Cell>
+        <Table.Cell>
         <Button
-          size="small"
-          compact
-          color="yellow"
-          onClick={() => cancelReservation(reservation.reserve_id, reservation)}
-        >
-          Edit
-        </Button>
-        <Button
-          size="small"
+          size='big'
           compact
           color="red"
           onClick={() => cancelReservation(reservation.reserve_id, reservation)}
@@ -213,57 +214,58 @@ function BooksList() {
         </Button>
       </Table.Cell>
     </Table.Row>
-    
   ));
 
   return (
     <Grid centered verticalAlign="top">
       <Grid.Row verticalAlign="top" centered style={{ position: "top" }}>
         <Grid.Column width={5} style={{ textAlign: "center" }}>
-          <Segment padded='very' inverted>
-          <Header size='huge' inverted style={{fontSize: "4rem"}}>Our Library</Header>
-          <Button.Group>
-            <Button
-            inverted
-              color="instagram"
-              size="huge"
-              style={{ margin: "1rem" }}
-              onClick={() => searchType("author")}
-            >
-              <Icon name='user' />
-              Author
-            </Button>
-            <Button
-            toggle
-              inverted
-              color="instagram"
-              size="huge"
-              style={{ margin: "1rem" }}
-              onClick={() => searchType("title")}
-            >
-              <Icon name='book' />
-              Title
-            </Button>
-          </Button.Group>
+          <Segment padded="very" inverted>
+            <Header size="huge" inverted style={{ fontSize: "4rem" }}>
+              Our Library
+            </Header>
+            <Button.Group>
+              <Button
+                inverted
+                color="instagram"
+                size="huge"
+                style={{ margin: "1rem" }}
+                onClick={() => searchType("author")}
+              >
+                <Icon name="user" />
+                Author
+              </Button>
+              <Button
+                toggle
+                inverted
+                color="instagram"
+                size="huge"
+                style={{ margin: "1rem" }}
+                onClick={() => searchType("title")}
+              >
+                <Icon name="book" />
+                Title
+              </Button>
+            </Button.Group>
 
-          <Search
-          
-            fluid
-            size='huge'
-            loading={loading}
-            onResultSelect={(e, data) =>
-              dispatch({
-                type: "UPDATE_SELECTION",
-                selection: data.result.title,
-              })
-            }
-            onSearchChange={handleSearchChange}
-            open={false}
-            results={results}
-            value={value}
-            placeholder={`Search by ${state.searchType}`}
-          />
-          
+            <Search
+            
+              fluid
+              size="huge"
+              loading={loading}
+              onResultSelect={(e, data) =>
+                dispatch({
+                  type: "UPDATE_SELECTION",
+                  selection: data.result.title,
+                })
+              }
+              onSearchChange={handleSearchChange}
+              open={false}
+              results={results}
+              value={value}
+              placeholder={`Search by ${state.searchType}`}
+            />
+
             <Table compact celled definition size="large">
               <Table.Header>
                 <Table.Row>
@@ -282,17 +284,19 @@ function BooksList() {
 
         {/* <Grid.Column width={2}></Grid.Column> */}
         <Grid.Column width={9} style={{ textAlign: "center" }}>
-          <Segment padded='very' inverted>
-          <Header size='huge' inverted style={{fontSize: "4rem"}}>Your Reserved Books</Header>
-            <Table  size="large" celled fixed textAlign='center'>
+          <Segment padded="very" inverted>
+            <Header size="huge" inverted style={{ fontSize: "4rem" }}>
+              Your Reserved Books
+            </Header>
+            <Table size="large" celled fixed textAlign="center">
               <Table.Header>
                 <Table.Row>
                   <Table.HeaderCell>Title</Table.HeaderCell>
                   <Table.HeaderCell>Author</Table.HeaderCell>
                   <Table.HeaderCell>Pick Up</Table.HeaderCell>
                   <Table.HeaderCell>Return By</Table.HeaderCell>
+                  <Table.HeaderCell>Edit Dates</Table.HeaderCell>
                   <Table.HeaderCell>Cancel</Table.HeaderCell>
-                  
                 </Table.Row>
               </Table.Header>
 

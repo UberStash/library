@@ -13,9 +13,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {open ? <BooksList/> : <Landing handleOpen={handleOpen}/>}
-        
-        
+        {open ? <BooksList/> : <Landing handleOpen={handleOpen}/>} 
       </header>
     </div>
   );
