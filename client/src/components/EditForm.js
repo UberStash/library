@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
-import axios from "axios";
 import { Form, Button } from "semantic-ui-react";
 import moment from 'moment'
+import {handleEditSubmit} from './serverEvents'
 
 const ReserveForm = (props) => {
   const [state, setState] = useState({
@@ -17,25 +17,9 @@ const ReserveForm = (props) => {
     setState(newFields);
   };
 
-  const handleSubmit = (e, id) => {
-    e.preventDefault();
-    return axios
-    .put(`http://localhost:3001/reserve`, { state })
-    .then((res) => {
-      
-      console.log(res.data);
-        props.setState((prev) => ({
-          ...prev,
-          reservations: res.data,
-        }));
-      })
-      .then(() => props.handleClose())
-  };
-  
-
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form onSubmit={() => handleEditSubmit(state, props)}>
       <Form.Group>
         <Form.Field required>
           <label htmlFor="start_date">
