@@ -1,14 +1,14 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index1');
+// const usersRouter = require('./routes/users');
 const bodyParser = require('body-parser');
-var cors = require('cors');
-var app = express();
+const cors = require('cors');
+const app = express();
 const db = require('./db');
 
 // view engine setup
@@ -25,7 +25,7 @@ app.use('/', indexRouter);
 app.use(bodyParser.json());
 // app.use('/users', usersRouter);
 
-// catch 404 and forward to error handler
+// catch 404 and forward to error handle
 app.use(function(req, res, next) {
   next(createError(404));
 });

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Form, Button } from "semantic-ui-react";
 import moment from 'moment'
-import {handleEditSubmit} from './serverEvents'
+import {handleEditSubmit} from '../hooks/serverEvents'
 
 const ReserveForm = (props) => {
   const [state, setState] = useState({

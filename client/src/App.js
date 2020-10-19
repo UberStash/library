@@ -1,22 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.scss";
-import BooksList from './components/BooksList'
-import Landing from './components/Landing'
+import BooksList from "./components/Library";
+import Landing from "./components/LandingPage";
+
 function App() {
+  const [open, setOpen] = useState(false);
 
-  const [open, setOpen] = React.useState(false)
-  
-  const handleOpen = () => { 
-    setOpen(true);
-    
-  }
-
-  
+  const handleOpen = () => {
+    setTimeout(function () {
+      setOpen(true);
+    }, 500);
+  };
 
   return (
     <div className="App">
       <header className="App-header">
-        {open ? <BooksList/> : <Landing handleOpen={handleOpen}/>} 
+        {open ? <BooksList /> : <Landing handleOpen={handleOpen} />}
       </header>
     </div>
   );

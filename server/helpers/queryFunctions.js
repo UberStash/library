@@ -1,8 +1,5 @@
-const express = require("express");
-const router = express.Router();
-const db = require("../db");
 
-// DB Helper functions
+module.exports = (db) => {
 const getBooks = () => {
   const query = {
     text: `SELECT * FROM books
@@ -88,71 +85,7 @@ const editReservation = ({ start_date, end_date, reserve_id }) => {
     .catch((err) => err);
 };
 
-/* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
-});
-
-// get the list of all books
-router.get("/api/books", (req, res) => {
-  getBooks(req.params.id)
-    .then((data) => {
-      console.log("appts: ", data.data);
-      return res.json(data);
-    })
-    .catch((err) => res.json({ err }));
-});
-
-router.put("/books", (req, res) => {
-  console.log(req.body);
-  removeFromQuantity(req.body.quantity, req.body.bookId)
-    .then(
-      getBooks().then((data) => {
-        return res.json(data);
-      })
-    )
-    .catch((err) => res.json({ err }));
-});
-
-
-
-router.get("/api/reserve", (req, res) => {
-  getReservations(req.params.id)
-    .then((data) => {
-      console.log("appts: ", data.data);
-      return res.json(data);
-    })
-    .catch((err) => res.json({ err }));
-});
-
-// Create a reservation
-router.post("/reserve", (req, res) => {
-  console.log(req.body.state.start_date);
-  const quantity = req.body.state.quantity - 1;
-  addReservation(req.body.state)
-    .then((data) => {
-      return res.json(data);
-    })
-    .catch((err) => res.json({ err }));
-});
-
-router.delete("/reserve/cancel/:id", (req, res) => {
-  cancelReservation(req.params.id);
-  getReservations()
-    .then((data) => {
-      return res.json(data);
-    })
-    .catch((err) => res.json({ err }));
-});
-
-router.put("/reserve", (req, res) => {
-  console.log(req.body);
-  editReservation(req.body.state)
-    .then((res) => console.log(res))
-    .catch((err) => res.json({ err }));
-    getReservations().then((data) => {
-      return res.json(data);
-    })
-});
-
-module.exports = router;
+return {
+  editReservation, removeFromQuantity, cancelReservation, addReservation, getReservations, getBooks
+};
+};

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {
   Segment,
   Header,
@@ -7,29 +7,22 @@ import {
 } from "semantic-ui-react";
 
 function Landing(props) {
-  let [open, setOpen] = React.useState(true)
+  const [open, setOpen] = useState(true)
 
   const toggleVisibility = () => {
-    setOpen( open = false )
-    setTimeout(
-      function() {
-        props.handleOpen()
-      }
-      ,
-      600
-  );
-    
+    setOpen(false)
+    props.handleOpen()
   }
 
   return (
     
     <Transition visible={open} animation='scale' duration={500}>
-    <Segment size='massive' inverted style={{border: '10px solid white', boxShadow: '4px 6px gray'}}>
+    <Segment size='massive' inverted style={{border: '10px solid white', boxShadow: '2px 3px darkgray'}}>
         
     <Header size='huge' style={{fontSize: "4rem"}}>Welcome to our library</Header>
     <Button color='instagram' size='massive' onClick={() => toggleVisibility()}>Click me to enter</Button>
     </Segment>
-    </Transition>
+   </Transition>
   )
 }
 

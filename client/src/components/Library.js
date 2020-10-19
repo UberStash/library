@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import ReserveModal from "./ReserveModal";
-import EditModal from './EditModal'
-import moment from "moment";
-
+import React, { useState, useReducer, useRef, useCallback, useEffect } from "react";
+import BookEntry from "./BookEntry";
+import ReservedEntry from "./ReservedEntry";
+import { reducer } from "../helpers/reducer";
+import { GetInitialState } from "../hooks/serverEvents";
 import {
   Segment,
   Grid,
@@ -28,75 +27,17 @@ function BooksList() {
     searchType: "author",
   });
 
-  useEffect(() => {
-    axios.get(`http://localhost:3001/api/books`).then((all) => {
-      console.log(all.data);
-      setState((prev) => ({
-        ...prev,
-        list: all.data,
-      }));
-    });
-
-    axios.get(`http://localhost:3001/api/reserve`).then((all) => {
-      console.log(all.data);
-      setState((prev) => ({
-        ...prev,
-        reservations: all.data,
-      }));
-    });
-  }, []);
-
-  const cancelReservation = (id, book) => {
-    console.log(book);
-    const bookId = book.book_id;
-    const quantity = book.quantity + 1;
-    axios
-      .delete(`http://localhost:3001/reserve/cancel/${id}`)
-      .then((all) => {
-        console.log(all.data);
-        setState((prev) => ({
-          ...prev,
-          reservations: all.data,
-        }));
-      })
-      .then(() => {
-        return axios
-          .put("http://localhost:3001/books", { bookId, quantity })
-          .then((all) => {
-            console.log(all.data);
-            setState((prev) => ({
-              ...prev,
-              list: all.data,
-            }));
-            dispatch({ type: "CLEAN_QUERY" });
-          });
-      });
-  };
-
-  
-
-  function reducer(searchState, action) {
-    switch (action.type) {
-      case "CLEAN_QUERY":
-        return initialState;
-      case "START_SEARCH":
-        return { ...searchState, loading: true, value: action.query };
-      case "FINISH_SEARCH":
-        return { ...searchState, loading: false, results: action.results };
-      case "UPDATE_SELECTION":
-        return { ...searchState, value: action.selection };
-
-      default:
-        throw new Error();
-    }
-  }
-
-  const [searchState, dispatch] = React.useReducer(reducer, initialState);
+  const [searchState, dispatch] = useReducer(reducer, initialState);
   const { loading, results, value } = searchState;
+  
+  GetInitialState(setState);
 
-  const timeoutRef = React.useRef();
 
-  const handleSearchChange = React.useCallback(
+  const timeoutRef = useRef();
+
+
+  // handles the search through the state list
+  const handleSearchChange = useCallback(
     (e, data) => {
       clearTimeout(timeoutRef.current);
       dispatch({ type: "START_SEARCH", query: data.value });
@@ -118,13 +59,16 @@ function BooksList() {
     },
     [state]
   );
-  React.useEffect(() => {
+
+  // clears timeout used for search results
+  useEffect(() => {
     return () => {
       clearTimeout(timeoutRef.current);
     };
   }, []);
 
-  const searchType = function (term) {
+// changes search type based on button click 
+  const searchType = (term) => {
     if (term === "author") {
       setState((prev) => ({
         ...prev,
@@ -139,87 +83,30 @@ function BooksList() {
   };
 
   let bookList = [];
-
+// book list builder
   if (results.length === 0) {
     bookList = state.list.map((book) => (
-      <Table.Row>
-        <Table.Cell>
-          {book.quantity > 0 ? (
-            <ReserveModal book={book} setState={setState} />
-          ) : (
-            <Button disabled color="grey">
-              Reserve
-            </Button>
-          )}
-        </Table.Cell>
-        <Table.Cell>{book.title}</Table.Cell>
-        <Table.Cell>{book.author}</Table.Cell>
-        <Table.Cell>{book.quantity}</Table.Cell>
-        <Table.Cell>
-          {book.quantity > 0 ? "Available" : "Out of stock!"}
-        </Table.Cell>
-      </Table.Row>
+      <BookEntry book={book} setState={setState} key={book.id}/>
     ));
   } else {
     bookList = results.map((book) => (
-      <Table.Row>
-        <Table.Cell>
-          {book.quantity > 0 ? (
-            <ReserveModal book={book} setState={setState} />
-          ) : (
-            <Button disabled color="grey">
-            Reserve
-          </Button>
-          )}
-        </Table.Cell>
-        <Table.Cell>{book.title}</Table.Cell>
-        <Table.Cell>{book.author}</Table.Cell>
-        <Table.Cell>{book.quantity}</Table.Cell>
-        <Table.Cell>
-          {book.quantity > 0 ? "Available" : "Out of stock!"}
-        </Table.Cell>
-      </Table.Row>
+      <BookEntry book={book} setState={setState} key={book.id}/>
     ));
   }
-
+// reservation builder
   const reservationList = state.reservations.map((reservation) => (
-    <Table.Row>
-      <Table.Cell>
-        {reservation.title}
-        {reservation.book_id}
-        {}
-      </Table.Cell>
-      <Table.Cell>{reservation.author}</Table.Cell>
-      <Table.Cell>
-        Pick up {moment(reservation.start_date, "YYYY-MM-DD").fromNow()} <br />{" "}
-        {reservation.start_date}
-      </Table.Cell>
-      <Table.Cell>
-        Return {moment(reservation.end_date, "YYYY-MM-DD").fromNow()} <br />{" "}
-        {reservation.end_date}
-      </Table.Cell>
-
-      <Table.Cell>
-        
-        <EditModal reservation={reservation} setState={setState}/>
-        </Table.Cell>
-        <Table.Cell>
-        <Button
-          size='big'
-          compact
-          color="red"
-          onClick={() => cancelReservation(reservation.reserve_id, reservation)}
-        >
-          Cancel
-        </Button>
-      </Table.Cell>
-    </Table.Row>
+    <ReservedEntry
+      reservation={reservation}
+      setState={setState}
+      dispatch={dispatch}
+      key={reservation.reserve_id}
+    />
   ));
 
   return (
     <Grid centered verticalAlign="top">
       <Grid.Row verticalAlign="top" centered style={{ position: "top" }}>
-        <Grid.Column width={5} style={{ textAlign: "center" }}>
+        <Grid.Column mobile={14} tablet={14} computer={6} widescreen={6} style={{ textAlign: "center" }}>
           <Segment padded="very" inverted>
             <Header size="huge" inverted style={{ fontSize: "4rem" }}>
               Our Library
@@ -249,7 +136,8 @@ function BooksList() {
             </Button.Group>
 
             <Search
-            
+            noResultsDescription={'There was no results for your search please try again!'}
+            style={{ marginBottom: '3rem'}}
               fluid
               size="huge"
               loading={loading}
@@ -260,13 +148,14 @@ function BooksList() {
                 })
               }
               onSearchChange={handleSearchChange}
-              open={false}
+              noResultsMessage={null}
               results={results}
               value={value}
+              open={results.length === 0 && value.length > 0 ? true : false}
               placeholder={`Search by ${state.searchType}`}
             />
 
-            <Table compact celled definition size="large">
+            <Table compact celled size="large">
               <Table.Header>
                 <Table.Row>
                   <Table.HeaderCell></Table.HeaderCell>
@@ -282,8 +171,7 @@ function BooksList() {
           </Segment>
         </Grid.Column>
 
-        {/* <Grid.Column width={2}></Grid.Column> */}
-        <Grid.Column width={9} style={{ textAlign: "center" }}>
+        <Grid.Column mobile={14} tablet={14} computer={9} widescreen={9} style={{ textAlign: "center" }}>
           <Segment padded="very" inverted>
             <Header size="huge" inverted style={{ fontSize: "4rem" }}>
               Your Reserved Books
